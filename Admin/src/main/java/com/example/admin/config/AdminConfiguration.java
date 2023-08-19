@@ -44,7 +44,10 @@ public class AdminConfiguration  {
 
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) ->
+
                         authorize.requestMatchers("/register/**").permitAll()
+                                .requestMatchers("/register-new/**").permitAll()
+                                .requestMatchers("/forgot-password/**").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                 .requestMatchers("/user/**").hasAuthority("USER")
                                 .anyRequest().authenticated()
