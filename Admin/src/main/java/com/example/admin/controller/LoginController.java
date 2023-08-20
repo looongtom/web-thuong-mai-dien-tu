@@ -13,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -24,28 +25,35 @@ public class LoginController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
     @GetMapping("/login")
-    public String loginForm(){
+    public String loginForm(Model model){
+        model.addAttribute("title","Login");
         return "login";
+    }
+
+    @RequestMapping("/index")
+    public String home(Model model){
+        model.addAttribute("title","Home page");
+        return "index";
     }
 
     @GetMapping("/register")
     public String register(Model model){
+        model.addAttribute("title","Register");
         model.addAttribute("adminDTO",new AdminDTO());
         return "register";
     }
 
     @GetMapping("/forgot-password")
     public String forgotPassword(Model model){
+        model.addAttribute("title","Forgot password");
         return "forgot-password";
     }
 
     @PostMapping("/register-new")
     public String addNewAdmin(@Valid @ModelAttribute("adminDTO") AdminDTO adminDTO,
                               BindingResult result,
-                              Model model,
-                              HttpSession session){
+                              Model model){
         try{
-            session.removeAttribute("message");
             if(result.hasErrors()){
                 model.addAttribute("adminDTO",adminDTO);
                 result.toString();
@@ -55,7 +63,7 @@ public class LoginController {
             if(admin !=null){
                 model.addAttribute("adminDTO",adminDTO);
                 System.out.println("admin not null");
-                session.setAttribute("message","Your email has been registered");
+                model.addAttribute("emailError","Your email has been registered");
                 return "register";
             }
             if(adminDTO.getPassword().equals(adminDTO.getRepeatPassword())){
@@ -63,17 +71,17 @@ public class LoginController {
                 adminService.save(adminDTO);
                 System.out.println("success");
                 model.addAttribute("adminDTO",adminDTO);
-                session.setAttribute("message","success");
+                model.addAttribute("success","Register successfully");
             }else{
                 model.addAttribute("adminDTO",adminDTO);
-                session.setAttribute("message","Password is not the same!");
+                model.addAttribute("passwordError","Password is not the same!");
                 System.out.println("password not same");
                 return "register";
             }
 
         }catch (Exception e){
             e.printStackTrace();
-            session.setAttribute("message","Server is error, please try again later");
+            model.addAttribute("errors","Server is error, please try again later");
         }
         return "register";
     }

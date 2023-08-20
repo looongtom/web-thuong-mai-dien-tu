@@ -54,8 +54,8 @@ public class AdminConfiguration  {
                 ).formLogin(
                         form -> form
                                 .loginPage("/login")
-                                .loginProcessingUrl("/login")
-                                .defaultSuccessUrl("/home/index", true)
+                                .loginProcessingUrl("/do-login")
+                                .defaultSuccessUrl("/index", true)
                                 .successHandler(new SavedRequestAwareAuthenticationSuccessHandler() {
                                     @Override
                                     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
