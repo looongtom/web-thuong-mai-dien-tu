@@ -41,15 +41,26 @@ public class AdminConfiguration  {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder
+                = http.getSharedObject(AuthenticationManagerBuilder.class);
+
+        authenticationManagerBuilder
+                .userDetailsService(userDetailsService())
+                .passwordEncoder(passwordEncoder());
+
+        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
+
 
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) ->
 
-                        authorize.requestMatchers("/register/**").permitAll()
-                                .requestMatchers("/register-new/**").permitAll()
-                                .requestMatchers("/forgot-password/**").permitAll()
+                        authorize
+                                .requestMatchers("/*", "/static/**").permitAll()
+//                                .requestMatchers("/register/**").permitAll()
+//                                .requestMatchers("/register-new/**").permitAll()
+//                                .requestMatchers("/forgot-password/**").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                                .requestMatchers("/user/**").hasAuthority("USER")
+//                                .requestMatchers("/user/**").hasAuthority("USER")
                                 .anyRequest().authenticated()
                 ).formLogin(
                         form -> form
@@ -71,9 +82,14 @@ public class AdminConfiguration  {
                                 .permitAll()
                 ).logout(
                         logout -> logout
+                                .invalidateHttpSession(true)
+                                .clearAuthentication(true)
                                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                                 .logoutSuccessUrl("/login?logout")
-                );
+                                .permitAll()
+                )
+                .authenticationManager(authenticationManager)
+        ;
         return http.build();
     }
 
